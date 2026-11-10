@@ -1,34 +1,35 @@
-# Hill Climb 3D — Unity vehicle milestone 01
+# Vehicle Physics Milestone 01 — test scene
 
-## Current focus
-Only the first milestone is being built: **basic vehicle driving and suspension stability**.
-Do not add terrain generation, coins, fuel, damage, tilt controls, menus, or other gameplay systems until this vehicle milestone has been tested and tuned.
+This milestone stays focused on one thing: **the vehicle's driving and suspension**.
 
-## Unity setup
-1. Create a new 3D Unity project (Unity 2022 LTS or newer).
-2. Copy `Assets/Scripts/Vehicle/HillClimbVehicleController.cs` into the same path in the Unity project.
-3. Create a vehicle root GameObject and add a Rigidbody.
-4. Add four WheelCollider objects under the vehicle: front-left, front-right, rear-left, rear-right.
-5. Assign the four colliders in the controller Inspector. Assign wheel mesh transforms if available.
-6. Keep the vehicle model's forward direction along local +Z and its up direction along local +Y.
-7. Set each WheelCollider's radius to match its wheel mesh. Start with suspension distance around 0.25–0.35 m and tune spring/damper in the Inspector.
-8. Place the Rigidbody center of mass lower than the chassis. The script starts with a downward offset of 0.45 m.
-9. Press Play and use W/S or Up/Down to drive/reverse; hold Space to brake.
+## Files
+- `Assets/Scripts/Vehicle/HillClimbVehicleController.cs` — rear-wheel drive, braking, smoothed throttle, wheel visual sync, anti-roll stability and mobile input hooks.
+- `Assets/Editor/HillClimbVehicleTestScene.cs` — creates a repeatable primitive test rig with four configured WheelColliders, a flat track, gentle ramp, camera and light.
 
-## Mobile input hooks
-The controller exposes:
-- `SetThrottle(1)` while the accelerator is held, then `SetThrottle(0)` on release.
-- `SetThrottle(-1)` for reverse if desired.
-- `SetBrake(true)` while brake is held, then `SetBrake(false)` on release.
+## Build the test rig in Unity
+1. Open a Unity 3D project (Unity 2022 LTS or newer).
+2. Copy the complete `UnityProject/Assets` folder into the Unity project's `Assets` folder. Keep the folder names unchanged.
+3. Wait for Unity to compile. If Unity reports an error, stop and fix it before testing.
+4. In Unity's top menu, choose **Hill Climb 3D → Vehicle → Build Physics Test Scene**.
+5. Save the generated scene as `VehiclePhysicsTest`.
+6. Press Play. Use **W / Up Arrow** to accelerate, **S / Down Arrow** to reverse, and **Space** to brake.
+7. Test on the flat track first, then approach the gentle ramp at moderate speed.
 
-A touch UI will be added only after the physics tuning milestone is approved.
+## What to inspect
+- Smooth acceleration and reverse, without sudden jumps.
+- All four visual wheels stay aligned with their WheelColliders.
+- Chassis settles after landing rather than bouncing repeatedly.
+- Vehicle remains upright and controllable on the gentle ramp.
+- Braking slows the vehicle predictably.
 
-## Completion checklist
-- [ ] Vehicle accelerates and reverses predictably.
-- [ ] All four wheels follow the suspension and their visual meshes stay aligned.
-- [ ] Vehicle remains controllable on a simple ramp.
-- [ ] No persistent bouncing, excessive rolling, or wheel jitter.
-- [ ] Keyboard and mobile input hooks both work.
+## Tuning order
+Change only one group at a time:
+1. WheelCollider radius and position to match wheel meshes.
+2. Suspension spring and damper to reduce bouncing without making the ride rigid.
+3. Center of mass and anti-roll values to improve stability.
+4. Motor torque and friction to achieve predictable acceleration and traction.
 
-## Important
-This is a Unity source milestone, not a ready-to-install Android APK. Building and testing the scene requires Unity Editor on a computer or a compatible cloud build environment. The Android phone can be used to test a built APK later.
+Do not add the next gameplay mechanic until these checks pass.
+
+## Honest status
+The Unity C# controller and editor scene generator are source files committed to GitHub. They have **not** been compiled or run in Unity in this environment. Unity Editor is required to generate and verify the scene. The generated primitive rig is for physics testing, not final 3D art.
