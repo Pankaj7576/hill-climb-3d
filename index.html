@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101b24"><title>Hill Climb 3D</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#8fd0ec;font-family:system-ui,Arial;touch-action:none}#game{width:100%;height:100%;display:block}
+#hud{position:fixed;inset:12px 12px auto;display:flex;justify-content:space-between;align-items:flex-start;color:#fff;font-weight:800;text-shadow:0 2px 5px #123;pointer-events:none}.pill{background:#102333b8;border:1px solid #ffffff55;border-radius:14px;padding:9px 13px;font-size:14px}
+#fuel{height:7px;width:90px;background:#ffffff55;border-radius:8px;overflow:hidden;margin-top:5px}#fuel i{display:block;height:100%;width:100%;background:#9cff58}
+#controls{position:fixed;inset:auto 12px 16px;display:flex;justify-content:space-between;align-items:end}.group{display:flex;gap:7px}.btn{width:min(21vw,88px);height:min(21vw,88px);border-radius:50%;border:2px solid #ffffff88;background:#102333b9;color:white;font-size:12px;font-weight:900;box-shadow:0 5px 18px #0005;touch-action:none}
+#hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;background:#132536cc;padding:13px 18px;border-radius:15px;text-align:center;font-weight:800;pointer-events:none;transition:opacity 1s}#restart{position:fixed;right:12px;top:70px;border:0;border-radius:10px;padding:9px 12px;background:#132536cc;color:#fff;font-weight:800}
+</style></head><body>
+<div id="hud"><div class="pill">DISTANCE <span id="distance">0</span> m</div><div class="pill">🪙 <span id="coins">0</span></div><div class="pill">FUEL<div id="fuel"><i id="fuelbar"></i></div></div></div><button id="restart">↻ Restart</button>
+<div id="hint">HILL CLIMB 3D<br><small>Hold GAS to drive • TILT in air</small></div><canvas id="game"></canvas>
+<div id="controls"><div class="group"><button class="btn" data-control="brake">BRAKE</button></div><div class="group"><button class="btn" data-control="tiltBack">◀ TILT</button><button class="btn" data-control="tiltForward">TILT ▶</button><button class="btn" data-control="gas">GAS</button></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const renderer=new THREE.WebGLRenderer({canvas:document.querySelector('#game'),antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8fd0ec);scene.fog=new THREE.Fog(0x8fd0ec,45,130);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,220);scene.add(new THREE.HemisphereLight(0xe5f7ff,0x52643b,2));const sun=new THREE.DirectionalLight(0xfff1d2,2.2);sun.position.set(-12,25,12);sun.castShadow=true;scene.add(sun);
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});const blue=mat(0x1478d0,.42,.2),dark=mat(0x171c22),gold=mat(0xffc928,.3,.5);
+function hill(x){return 1.1+Math.sin(x*.075)*2.7+Math.sin(x*.021)*3.9+Math.sin(x*.19)*.28}
+const verts=[],inds=[],NX=520,NZ=18;for(let z=0;z<=NZ;z++)for(let x=0;x<=NX;x++){let px=x*.55-12,pz=(z/NZ-.5)*30;verts.push(px,hill(px)-1.7+Math.sin(px*.13+pz*.1)*.12,pz)}
+for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){let a=z*(NX+1)+x,b=a+1,c=a+NX+1,d=c+1;inds.push(a,c,b,b,c,d)}
+const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(inds);geo.computeVertexNormals();const terrain=new THREE.Mesh(geo,mat(0x638f45,1));terrain.receiveShadow=true;scene.add(terrain);
+const car=new THREE.Group();scene.add(car);car.position.set(0,hill(0)+1.7,0);
+function box(parent,size,pos,material){let m=new THREE.Mesh(new THREE.BoxGeometry(...size),material);m.position.set(...pos);m.castShadow=true;parent.add(m);return m}
+box(car,[3.1,.72,1.65],[0,.35,0],blue);box(car,[1.5,.85,1.48],[-.25,1.08,0],blue);box(car,[1.25,.58,1.51],[-.25,1.12,0],mat(0x9bd8e8,.2));
+const wheels=[];for(let x of [-1.05,1.05])for(let z of [-.91,.91]){let w=new THREE.Group();w.position.set(x,-.05,z);let t=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.32,20),dark);t.rotation.x=Math.PI/2;t.castShadow=true;w.add(t);let h=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.34,12),mat(0xadb9c0,.3,.6));h.rotation.x=Math.PI/2;w.add(h);car.add(w);wheels.push(w)}
+for(let i=0;i<20;i++){let h=9+Math.random()*12,m=new THREE.Mesh(new THREE.ConeGeometry(8,h,5),mat(0x819b8b));m.position.set(i*16-10,h/2-4,-30);scene.add(m)}
+for(let i=0;i<36;i++){let x=i*8+4,y=hill(x);let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.15,.22,1.7,7),mat(0x65452c));trunk.position.set(x,y+.8,-5);scene.add(trunk);let crown=new THREE.Mesh(new THREE.ConeGeometry(1.2,3,7),mat(0x23623c));crown.position.set(x,y+2.7,-5);scene.add(crown)}
+const coins=[];for(let i=0;i<60;i++){let x=12+i*5.5,c=new THREE.Mesh(new THREE.TorusGeometry(.4,.12,8,18),gold);c.position.set(x,hill(x)+2.3,0);scene.add(c);coins.push(c)}
+const keys={};document.querySelectorAll('[data-control]').forEach(b=>{let k=b.dataset.control;b.onpointerdown=e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)};let up=()=>keys[k]=false;b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up});
+let speed=0,angle=0,coinCount=0,fuel=100,dist=0,last=performance.now();const $=s=>document.querySelector(s);
+function reset(){car.position.set(0,hill(0)+1.7,0);speed=angle=coinCount=dist=0;fuel=100;coins.forEach(c=>c.visible=true);$('#hint').style.opacity=1;setTimeout(()=>$('#hint').style.opacity=0,2800)}$('#restart').onclick=reset;
+function frame(now){requestAnimationFrame(frame);let dt=Math.min((now-last)/1000,.035);last=now;if(keys.gas&&fuel>0){speed=Math.min(15,speed+7*dt);fuel=Math.max(0,fuel-2.2*dt)}else speed*=Math.pow(.6,dt);if(keys.brake)speed=Math.max(-3,speed-10*dt);
+let x=Math.max(-3,Math.min(310,car.position.x+speed*dt)),y=hill(x)+1.7,slope=Math.atan((hill(x+.2)-hill(x-.2))/.4);let airborne=car.position.y>y+.4;let tilt=(keys.tiltBack?1:0)-(keys.tiltForward?1:0);angle=airborne?angle+tilt*dt*2.5:angle*.9;car.position.x=x;car.position.y=THREE.MathUtils.lerp(car.position.y,y,dt*5);car.rotation.z=THREE.MathUtils.lerp(car.rotation.z,slope+angle,dt*5);wheels.forEach(w=>w.rotation.x-=speed*dt*2.2);dist=Math.max(dist,x);
+for(let c of coins)if(c.visible&&c.position.distanceTo(car.position)<1.5){c.visible=false;coinCount++}
+camera.position.lerp(new THREE.Vector3(x-7,car.position.y+5.5,10),dt*3);camera.lookAt(x+2,car.position.y+.4,0);
+$('#distance').textContent=Math.floor(dist*3.4);$('#coins').textContent=coinCount;$('#fuelbar').style.width=fuel+'%';$('#fuelbar').style.background=fuel<25?'#ff5948':'#9cff58';renderer.render(scene,camera)}
+requestAnimationFrame(frame);addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
