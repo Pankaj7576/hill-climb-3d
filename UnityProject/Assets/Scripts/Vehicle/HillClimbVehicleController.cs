@@ -38,6 +38,8 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     private float currentThrottle;
     private bool keyboardBrake;
     private bool mobileBrake;
+    private Vector3 spawnPosition;
+    private Quaternion spawnRotation;
 
     /// <summary>Call from a mobile UI button: 1 while pressed, 0 when released.</summary>
     public void SetThrottle(float value)
@@ -54,6 +56,8 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
+        spawnPosition = body.position;
+        spawnRotation = body.rotation;
         body.centerOfMass = centerOfMassOffset;
 
         if (body.mass < 500f)
@@ -119,12 +123,19 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         if (left == null || right == null || antiRoll <= 0f)
             return;
 
+        bool leftGrounded = left.GetGroundHit(out _);
+        bool rightGrounded = right.GetGroundHit(out _);
+        if (!leftGrounded && !rightGrounded)
+            return;
+
         float travelLeft = GetSuspensionTravel(left);
         float travelRight = GetSuspensionTravel(right);
         float force = (travelLeft - travelRight) * antiRoll;
 
-        body.AddForceAtPosition(left.transform.up * -force, left.transform.position);
-        body.AddForceAtPosition(right.transform.up * force, right.transform.position);
+        if (leftGrounded)
+            body.AddForceAtPosition(left.transform.up * -force, left.transform.position);
+        if (rightGrounded)
+            body.AddForceAtPosition(right.transform.up * force, right.transform.position);
     }
 
     private static float GetSuspensionTravel(WheelCollider wheel)
@@ -133,8 +144,9 @@ public sealed class HillClimbVehicleController : MonoBehaviour
             return 1f;
 
         Vector3 localHit = wheel.transform.InverseTransformPoint(hit.point);
-        float compression = (-localHit.y - wheel.radius) / wheel.suspensionDistance;
-        return Mathf.Clamp01(1f - compression);
+        float suspensionRange = Mathf.Max(0.001f, wheel.suspensionDistance);
+        float travel = (-localHit.y - wheel.radius) / suspensionRange;
+        return Mathf.Clamp01(travel);
     }
 
     private static void UpdateWheelVisual(WheelCollider wheel, Transform visual)
@@ -163,7 +175,7 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         currentThrottle = 0f;
         mobileThrottle = 0f;
         mobileBrake = false;
-        body.position += Vector3.up * 0.5f;
-        body.rotation = Quaternion.identity;
+        body.position = spawnPosition + Vector3.up * 0.5f;
+        body.rotation = spawnRotation;
     }
 }
