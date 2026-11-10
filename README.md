@@ -1,24 +1,22 @@
 # Hill Climb 3D
 
-A mobile-first 3D hill driving prototype built with Three.js.
+A mobile-focused Hill Climb game project. Development is being done in small, testable milestones: finish and tune one mechanic before starting the next.
 
-## Play
-Once GitHub Pages is enabled and the deployment workflow completes, open:
-https://pankaj7576.github.io/itz_pankaj_020/
+## Current milestone: vehicle physics
+The active focus is the Unity vehicle controller and suspension test rig.
 
-## Mobile controls
-- GAS: accelerate
-- BRAKE: slow down / reverse
-- TILT: rotate while airborne
-- Restart: reset the run
+- [Vehicle physics setup and test guide](UnityProject/VEHICLE-MILESTONE-01.md)
+- [Unity vehicle controller](UnityProject/Assets/Scripts/Vehicle/HillClimbVehicleController.cs)
+- [One-click Unity test-scene builder](UnityProject/Assets/Editor/HillClimbVehicleTestScene.cs)
 
-## Tech
-- Three.js loaded from jsDelivr CDN
-- Responsive touch controls
-- Procedural rolling terrain, jeep, coins, distance and fuel HUD
+### Create the Unity test scene
+Copy the `UnityProject/Assets` folder into a Unity 2022 LTS (or newer) 3D project. In Unity, choose **Hill Climb 3D → Vehicle → Build Physics Test Scene**. Read the milestone guide before testing.
 
-## Publish
-This repository includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
-In repository Settings → Pages, set Build and deployment → Source to **GitHub Actions** once. The workflow then deploys on every push to `main`.
+## Browser prototype
+The root `index.html` is an earlier Three.js browser prototype, separate from the Unity project:
+https://pankaj7576.github.io/hill-climb-3d/
 
-This is a browser prototype, not an Android APK. A native APK would require a separate Android packaging/build pipeline.
+The browser prototype is not the final Unity game and is not an Android APK.
+
+## Important build note
+The Unity source files are stored here, but a Unity Editor or compatible cloud build is required to compile, run the test scene and build an Android APK. No APK or tested Unity build is being claimed yet.
