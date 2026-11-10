@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101b24"><title>Hill Climb 3D</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#8fd0ec;font-family:system-ui,Arial;touch-action:none}#game{width:100%;height:100%;display:block}
+#hud{position:fixed;inset:12px 12px auto;display:flex;justify-content:space-between;align-items:flex-start;color:#fff;font-weight:800;text-shadow:0 2px 5px #123;pointer-events:none}
+.pill{background:#102333b8;border:1px solid #ffffff55;border-radius:14px;padding:9px 13px;font-size:14px}
+#fuel{height:7px;width:120px;background:#ffffff55;border-radius:8px;overflow:hidden;margin-top:5px}#fuel>i{display:block;height:100%;width:100%;background:#9cff58}
+#controls{position:fixed;inset:auto 16px 18px;display:flex;justify-content:space-between;align-items:end}
+.group{display:flex;gap:10px}.btn{width:min(23vw,100px);height:min(23vw,100px);border-radius:50%;border:2px solid #ffffff88;background:#102333b9;color:white;font-size:14px;font-weight:900;box-shadow:0 5px 18px #0005;touch-action:none}
+.btn:active{background:#31a6e8}
+#hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;background:#132536cc;padding:13px 18px;border-radius:15px;text-align:center;font-weight:800;pointer-events:none;transition:opacity 1s}
+#restart{position:fixed;right:14px;top:75px;border:0;border-radius:10px;padding:9px 12px;background:#132536cc;color:#fff;font-weight:800}
+</style>
+</head><body>
+<div id="hud"><div class="pill">DISTANCE <span id="distance">0</span> m</div><div class="pill">🪙 <span id="coins">0</span></div><div class="pill">FUEL<div id="fuel"><i id="fuelbar"></i></div></div></div>
+<button id="restart">↻ Restart</button>
+<div id="hint">HILL CLIMB 3D<br><small>Hold GAS to drive • TILT to rotate in air</small></div>
+<canvas id="game"></canvas>
+<div id="controls">
+<div class="group"><button class="btn" data-control="brake">BRAKE</button></div>
+<div class="group"><button class="btn" data-control="tiltBack">◀ TILT</button><button class="btn" data-control="tiltForward">TILT ▶</button><button class="btn" data-control="gas">GAS</button></div>
+</div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const canvas=document.querySelector('#game');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8fd0ec);scene.fog=new THREE.Fog(0x8fd0ec,42,125);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,220);
+scene.add(new THREE.HemisphereLight(0xe5f7ff,0x52643b,2));
+const sun=new THREE.DirectionalLight(0xfff1d2,2.3);sun.position.set(-12,25,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const green=mat(0x4d8d3e), dirt=mat(0x755136), dark=mat(0x171c22), blue=mat(0x1478d0,.42,.25), glass=mat(0x9bd8e8,.2,.15), gold=mat(0xffc928,.3,.55);
+function hill(x){return 1.1+Math.sin(x*.075)*2.7+Math.sin(x*.021)*3.9+Math.sin(x*.19)*.28}
+const groundGeo=new THREE.BufferGeometry(),verts=[],inds=[];const NX=520,NZ=18;
+for(let z=0;z<=NZ;z++)for(let x=0;x<=NX;x++){const px=x*.55-12,pz=(z/NZ-.5)*30;verts.push(px,hill(px)-1.7+Math.sin(px*.13+pz*.1)*.12,pz)}
+for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){let a=z*(NX+1)+x,b=a+1,c=a+NX+1,d=c+1;inds.push(a,c,b,b,c,d)}
+groundGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));groundGeo.setIndex(inds);groundGeo.computeVertexNormals();
+const terrain=new THREE.Mesh(groundGeo,new THREE.MeshStandardMaterial({color:0x638f45,roughness:1,vertexColors:false}));terrain.receiveShadow=true;scene.add(terrain);
+const earth=new THREE.Mesh(new THREE.BoxGeometry(310,5,34),dirt);earth.position.set(130,-8,0);earth.receiveShadow=true;scene.add(earth);
+// far mountains
+for(let i=0;i<18;i++){let h=10+Math.random()*15;let m=new THREE.Mesh(new THREE.ConeGeometry(7+Math.random()*7,h,5),mat(i%2?0x7d9b83:0x829d91));m.position.set(i*13-15, h/2-3,-24-Math.random()*10);scene.add(m)}
+// trees decorate track edges
+for(let i=0;i<50;i++){const x=i*7+5,y=hill(x);let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,1.8,7),mat(0x65452c));trunk.position.set(x,y+.9,-5.5);scene.add(trunk);let crown=new THREE.Mesh(new THREE.ConeGeometry(1.3,3.4,7),mat(0x23623c));crown.position.set(x,y+3,-5.5);crown.castShadow=true;scene.add(crown)}
+// jeep body group
+const car=new THREE.Group();scene.add(car);car.position.set(0,hill(0)+1.8,0);
+const chassis=new THREE.Mesh(new THREE.BoxGeometry(3.1,.72,1.65),blue);chassis.position.y=.35;chassis.castShadow=true;car.add(chassis);
+const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.5,.85,1.48),blue);cabin.position.set(-.25,1.08,0);cabin.castShadow=true;car.add(cabin);
+const wind=new THREE.Mesh(new THREE.BoxGeometry(1.25,.59,1.51),glass);wind.position.set(-.25,1.12,0);car.add(wind);
+const hood=new THREE.Mesh(new THREE.BoxGeometry(.75,.22,1.55),mat(0x0d4d98));hood.position.set(1.15,.68,0);car.add(hood);
+const wheels=[];for(const x of [-1.05,1.05])for(const z of [-.91,.91]){let w=new THREE.Group();w.position.set(x,-.05,z);let tire=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.32,20),dark);tire.rotation.x=Math.PI/2;tire.castShadow=true;w.add(tire);let hub=new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.34,12),mat(0x9da8b0,.35,.65));hub.rotation.x=Math.PI/2;w.add(hub);car.add(w);wheels.push(w)}
+// coins
+const coinMeshes=[];for(let i=0;i<65;i++){let x=12+i*5.3,y=hill(x)+2.35;let c=new THREE.Mesh(new THREE.TorusGeometry(.42,.13,8,18),gold);c.position.set(x,y,0);c.castShadow=true;scene.add(c);coinMeshes.push(c)}
+const keys={gas:false,brake:false,tiltBack:false,tiltForward:false};document.querySelectorAll('[data-control]').forEach(b=>{let k=b.dataset.control;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)});const up=()=>keys[k]=false;b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up)});
+let speed=0,angle=0,coins=0,fuel=100,distance=0,prev=performance.now(),gameOver=false;
+const $=s=>document.querySelector(s);function reset(){car.position.set(0,hill(0)+1.8,0);speed=0;angle=0;coins=0;fuel=100;distance=0;gameOver=false;coinMeshes.forEach(c=>c.visible=true);$('#hint').style.opacity=1;setTimeout(()=>$('#hint').style.opacity=0,3200)}$('#restart').onclick=reset;
+function loop(now){requestAnimationFrame(loop);let dt=Math.min((now-prev)/1000,.035);prev=now;if(!gameOver){if(keys.gas&&fuel>0){speed=Math.min(speed+dt*7,15);fuel=Math.max(0,fuel-dt*2.2)}else speed*=Math.pow(.55,dt);if(keys.brake)speed=Math.max(-3,speed-dt*10);let x=car.position.x+speed*dt;x=Math.max(-3,Math.min(x,270));let targetY=hill(x)+1.7;car.position.x=x;car.position.y=THREE.MathUtils.lerp(car.position.y,targetY,dt*5);let slope=Math.atan((hill(x+.2)-hill(x-.2))/.4);let airborne=car.position.y>targetY+.42;let tilt=(keys.tiltBack?1:0)-(keys.tiltForward?1:0);angle+=airborne?tilt*dt*2.5:0;angle*=Math.pow(.95,dt);car.rotation.z=THREE.MathUtils.lerp(car.rotation.z,slope+angle,dt*5);wheels.forEach(w=>w.rotation.x-=speed*dt*2.2);distance=Math.max(distance,x);for(const c of coinMeshes){if(c.visible&&c.position.distanceTo(car.position)<1.55){c.visible=false;coins++}}if(fuel<=0&&Math.abs(speed)<.15)gameOver=true}
+camera.position.lerp(new THREE.Vector3(car.position.x-7,car.position.y+5.6,10),dt*3.2);camera.lookAt(car.position.x+2,car.position.y+.35,0);
+$('#distance').textContent=Math.floor(distance*3.4);$('#coins').textContent=coins;$('#fuelbar').style.width=fuel+'%';$('#fuelbar').style.background=fuel<25?'#ff5b49':'#9cff58';
+renderer.render(scene,camera);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
