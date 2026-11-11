@@ -33,6 +33,11 @@ public static class HillClimbVehicleTestScene
         Material wheelMat = MakeMaterial("HC3D_Tire_Material", new Color(0.045f, 0.05f, 0.06f));
         Material groundMat = MakeMaterial("HC3D_Test_Ground_Material", new Color(0.28f, 0.34f, 0.24f));
         Material rampMat = MakeMaterial("HC3D_Test_Ramp_Material", new Color(0.48f, 0.43f, 0.34f));
+        Material roadMat = MakeMaterial("HC3D_Asphalt_Material", new Color(0.12f, 0.14f, 0.16f));
+        Material lineMat = MakeMaterial("HC3D_Road_Marking_Material", new Color(0.92f, 0.82f, 0.42f));
+        Material rockMat = MakeMaterial("HC3D_Rock_Material", new Color(0.30f, 0.31f, 0.29f));
+        Material trunkMat = MakeMaterial("HC3D_Tree_Trunk_Material", new Color(0.24f, 0.14f, 0.08f));
+        Material leafMat = MakeMaterial("HC3D_Pine_Foliage_Material", new Color(0.12f, 0.28f, 0.18f));
 
         GameObject chassis = GameObject.CreatePrimitive(PrimitiveType.Cube);
         chassis.name = "Chassis_Blockout";
@@ -58,7 +63,20 @@ public static class HillClimbVehicleTestScene
         so.ApplyModifiedPropertiesWithoutUndo();
 
         CreateBlock("Flat_Test_Ground", new Vector3(0f, -0.12f, 0f), new Vector3(18f, 0.24f, 35f), groundMat);
+        CreateBlock("Asphalt_Test_Track", new Vector3(0f, 0.018f, 0f), new Vector3(8f, 0.04f, 34f), roadMat);
+        CreateBlock("Track_Edge_Left", new Vector3(-3.72f, 0.052f, 0f), new Vector3(0.10f, 0.018f, 33.5f), lineMat);
+        CreateBlock("Track_Edge_Right", new Vector3(3.72f, 0.052f, 0f), new Vector3(0.10f, 0.018f, 33.5f), lineMat);
         CreateBlock("Gentle_Test_Ramp", new Vector3(0f, 0.38f, 13f), new Vector3(9f, 0.35f, 12f), rampMat, Quaternion.Euler(-10f, 0f, 0f));
+        CreateScenery(rockMat, trunkMat, leafMat);
+
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor = new Color(0.48f, 0.60f, 0.72f);
+        RenderSettings.ambientEquatorColor = new Color(0.34f, 0.38f, 0.31f);
+        RenderSettings.ambientGroundColor = new Color(0.18f, 0.17f, 0.14f);
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = new Color(0.62f, 0.72f, 0.78f);
+        RenderSettings.fogMode = FogMode.Exponential;
+        RenderSettings.fogDensity = 0.008f;
 
         GameObject cameraObject = new GameObject("Vehicle_Test_Camera");
         Camera camera = cameraObject.AddComponent<Camera>();
@@ -73,8 +91,10 @@ public static class HillClimbVehicleTestScene
         GameObject lightObject = new GameObject("Vehicle_Test_Directional_Light");
         Light sun = lightObject.AddComponent<Light>();
         sun.type = LightType.Directional;
-        sun.intensity = 1.2f;
-        lightObject.transform.rotation = Quaternion.Euler(45f, -30f, 0f);
+        sun.intensity = 1.35f;
+        sun.color = new Color(1f, 0.91f, 0.78f);
+        sun.shadows = LightShadows.Soft;
+        lightObject.transform.rotation = Quaternion.Euler(42f, -32f, 0f);
 
         Selection.activeGameObject = root;
         EditorSceneManager.MarkSceneDirty(root.scene);
@@ -187,6 +207,57 @@ public static class HillClimbVehicleTestScene
         Object.DestroyImmediate(visualObject.GetComponent<Collider>());
         visual = visualObject.transform;
         return wheel;
+    }
+
+
+    private static void CreateScenery(Material rockMat, Material trunkMat, Material leafMat)
+    {
+        // Low-poly roadside scenery stays outside the wheel path.
+        Vector3[] treePositions =
+        {
+            new Vector3(-7.7f, 0f, -13f), new Vector3(7.7f, 0f, -10f),
+            new Vector3(-7.8f, 0f, -2f), new Vector3(7.8f, 0f, 3f),
+            new Vector3(-7.7f, 0f, 11f), new Vector3(7.7f, 0f, 15f)
+        };
+
+        for (int i = 0; i < treePositions.Length; i++)
+        {
+            Vector3 p = treePositions[i];
+            GameObject trunk = CreateVisualPrimitive(PrimitiveType.Cylinder, "Pine_Trunk_" + i, p + Vector3.up * 0.65f,
+                new Vector3(0.22f, 0.65f, 0.22f), trunkMat);
+            trunk.transform.rotation = Quaternion.Euler(0f, i * 37f, 0f);
+
+            CreateVisualPrimitive(PrimitiveType.Cone, "Pine_Canopy_Lower_" + i, p + Vector3.up * 1.55f,
+                new Vector3(1.55f, 1.65f, 1.55f), leafMat);
+            CreateVisualPrimitive(PrimitiveType.Cone, "Pine_Canopy_Upper_" + i, p + Vector3.up * 2.25f,
+                new Vector3(1.15f, 1.35f, 1.15f), leafMat);
+        }
+
+        Vector3[] rockPositions =
+        {
+            new Vector3(-6.1f, 0.30f, -8f), new Vector3(6.2f, 0.28f, -1f),
+            new Vector3(-6.3f, 0.25f, 7f), new Vector3(6.1f, 0.32f, 12f)
+        };
+        for (int i = 0; i < rockPositions.Length; i++)
+        {
+            GameObject rock = CreateVisualPrimitive(PrimitiveType.Sphere, "Roadside_Rock_" + i,
+                rockPositions[i], new Vector3(1.25f, 0.72f, 1.0f), rockMat);
+            rock.transform.rotation = Quaternion.Euler(i * 13f, i * 29f, i * 7f);
+        }
+    }
+
+    private static GameObject CreateVisualPrimitive(PrimitiveType type, string name, Vector3 position,
+        Vector3 scale, Material material)
+    {
+        GameObject visual = GameObject.CreatePrimitive(type);
+        visual.name = name;
+        visual.transform.position = position;
+        visual.transform.localScale = scale;
+        visual.GetComponent<Renderer>().sharedMaterial = material;
+        Collider collider = visual.GetComponent<Collider>();
+        if (collider != null)
+            Object.DestroyImmediate(collider);
+        return visual;
     }
 
     private static void CreateBlock(string name, Vector3 position, Vector3 scale, Material material, Quaternion rotation = default)
