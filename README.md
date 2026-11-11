@@ -3,7 +3,7 @@
 A mobile-focused Hill Climb game project. Development is being done in small, testable milestones: finish and tune one mechanic before starting the next.
 
 ## Current milestone: vehicle physics
-The active focus is driving, front steering, suspension stability, a repeatable Unity test scene and an automatically generated mobile touch HUD.
+The active focus is driving, front steering, suspension stability, a repeatable Unity test scene, mobile touch HUD and a first low-poly roadside environment with an asphalt track.
 
 - [Vehicle physics setup and test guide](UnityProject/VEHICLE-MILESTONE-01.md)
 - [Unity vehicle controller](UnityProject/Assets/Scripts/Vehicle/HillClimbVehicleController.cs)
