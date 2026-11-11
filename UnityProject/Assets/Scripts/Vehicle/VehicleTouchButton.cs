@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 /// </summary>
 public sealed class VehicleTouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    public enum ControlType { Accelerator, Reverse, Brake, SteerLeft, SteerRight }
+    public enum ControlType { Accelerator, Reverse, Brake, SteerLeft, SteerRight, Reset }
 
     [SerializeField] private HillClimbVehicleController vehicle;
     [SerializeField] private ControlType control;
@@ -21,6 +21,12 @@ public sealed class VehicleTouchButton : MonoBehaviour, IPointerDownHandler, IPo
     public void OnPointerDown(PointerEventData eventData)
     {
         if (vehicle == null) return;
+
+        if (control == ControlType.Reset)
+        {
+            vehicle.ResetVehicle();
+            return;
+        }
 
         switch (control)
         {
