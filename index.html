@@ -27,7 +27,7 @@ const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float
 function roadHeight(x){return hill(x)-1.55}
 const roadVerts=[],roadIndices=[],roadSteps=520;
 for(let i=0;i<=roadSteps;i++){let x=i*.55-12,y=roadHeight(x);roadVerts.push(x,y,-4.1,x,y,4.1)}
-for(let i=0;i<roadSteps;i++){let a=i*2,b=a+1,c=a+2,d=a+3;roadIndices.push(a,c,b,b,c,d)}
+for(let i=0;i<roadSteps;i++){let a=i*2,b=a+1,c=a+2,d=a+3;roadIndices.push(a,b,c,b,d,c)}
 const roadGeo=new THREE.BufferGeometry();roadGeo.setAttribute('position',new THREE.Float32BufferAttribute(roadVerts,3));roadGeo.setIndex(roadIndices);roadGeo.computeVertexNormals();
 const road=new THREE.Mesh(roadGeo,mat(0x252b31,.95));road.receiveShadow=true;scene.add(road);
 const edgeMat=mat(0xffd65a,.65),dashMat=mat(0xe9e5c8,.7);
@@ -41,6 +41,10 @@ for(let i=0;i<20;i++){let h=9+Math.random()*12,m=new THREE.Mesh(new THREE.ConeGe
 for(let i=0;i<36;i++){let x=i*8+4,y=hill(x);let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.15,.22,1.7,7),mat(0x65452c));trunk.position.set(x,y+.8,-5);scene.add(trunk);let crown=new THREE.Mesh(new THREE.ConeGeometry(1.2,3,7),mat(0x23623c));crown.position.set(x,y+2.7,-5);scene.add(crown)}
 const coins=[];for(let i=0;i<60;i++){let x=12+i*5.5,c=new THREE.Mesh(new THREE.TorusGeometry(.4,.12,8,18),gold);c.position.set(x,hill(x)+2.3,0);scene.add(c);coins.push(c)}
 const keys={};document.querySelectorAll('[data-control]').forEach(b=>{let k=b.dataset.control;b.onpointerdown=e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)};let up=()=>keys[k]=false;b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up});
+const keyMap={ArrowUp:'gas',KeyW:'gas',ArrowDown:'reverse',KeyS:'reverse',Space:'brake',ArrowLeft:'tiltBack',KeyA:'tiltBack',ArrowRight:'tiltForward',KeyD:'tiltForward'};
+addEventListener('keydown',e=>{let k=keyMap[e.code];if(k){e.preventDefault();keys[k]=true}});
+addEventListener('keyup',e=>{let k=keyMap[e.code];if(k){e.preventDefault();keys[k]=false}});
+
 let speed=0,angle=0,coinCount=0,fuel=100,dist=0,last=performance.now();const $=s=>document.querySelector(s);
 function reset(){car.position.set(0,roadHeight(0)+.53,0);speed=angle=coinCount=dist=0;fuel=100;coins.forEach(c=>c.visible=true);$('#hint').style.opacity=1;setTimeout(()=>$('#hint').style.opacity=0,2800)}$('#restart').onclick=reset;
 function frame(now){requestAnimationFrame(frame);let dt=Math.min((now-last)/1000,.035);last=now;
