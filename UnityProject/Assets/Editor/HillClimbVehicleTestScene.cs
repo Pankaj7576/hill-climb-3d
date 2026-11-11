@@ -64,6 +64,8 @@ public static class HillClimbVehicleTestScene
         camera.fieldOfView = 62f;
         cameraObject.transform.position = new Vector3(5.5f, 4.2f, -7.5f);
         cameraObject.transform.LookAt(root.transform.position + new Vector3(0f, 0.2f, 2f));
+        VehicleTestCameraFollow follow = cameraObject.AddComponent<VehicleTestCameraFollow>();
+        follow.SetTarget(root.transform);
 
         GameObject lightObject = new GameObject("Vehicle_Test_Directional_Light");
         Light sun = lightObject.AddComponent<Light>();
