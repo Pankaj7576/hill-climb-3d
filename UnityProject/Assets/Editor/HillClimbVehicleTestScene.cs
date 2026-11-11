@@ -17,8 +17,11 @@ public static class HillClimbVehicleTestScene
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             return;
 
+        // Android build orientation: landscape 16:9 layout, never portrait.
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+
         var root = new GameObject("HC3D_Vehicle_Test_Rig");
-        root.transform.position = new Vector3(0f, 0.58f, 0f);
+        root.transform.position = new Vector3(0f, 0.65f, 0f);
 
         var body = root.AddComponent<Rigidbody>();
         body.mass = 900f;
@@ -63,9 +66,11 @@ public static class HillClimbVehicleTestScene
         so.ApplyModifiedPropertiesWithoutUndo();
 
         CreateBlock("Flat_Test_Ground", new Vector3(0f, -0.12f, 0f), new Vector3(18f, 0.24f, 35f), groundMat);
-        CreateBlock("Asphalt_Test_Track", new Vector3(0f, 0.018f, 0f), new Vector3(8f, 0.04f, 34f), roadMat);
-        CreateBlock("Track_Edge_Left", new Vector3(-3.72f, 0.052f, 0f), new Vector3(0.10f, 0.018f, 33.5f), lineMat);
-        CreateBlock("Track_Edge_Right", new Vector3(3.72f, 0.052f, 0f), new Vector3(0.10f, 0.018f, 33.5f), lineMat);
+        CreateBlock("Asphalt_Test_Track", new Vector3(0f, 0.035f, 0f), new Vector3(8.6f, 0.04f, 58f), roadMat);
+        CreateBlock("Track_Edge_Left", new Vector3(-4.05f, 0.061f, 0f), new Vector3(0.12f, 0.012f, 57.5f), lineMat);
+        CreateBlock("Track_Edge_Right", new Vector3(4.05f, 0.061f, 0f), new Vector3(0.12f, 0.012f, 57.5f), lineMat);
+        for (int marker = -27; marker <= 27; marker += 5)
+            CreateBlock("Road_Center_Dash_" + marker, new Vector3(0f, 0.061f, marker), new Vector3(0.14f, 0.012f, 2.2f), lineMat);
         CreateBlock("Gentle_Test_Ramp", new Vector3(0f, 0.38f, 13f), new Vector3(9f, 0.35f, 12f), rampMat, Quaternion.Euler(-10f, 0f, 0f));
         CreateScenery(rockMat, trunkMat, leafMat);
 
@@ -81,7 +86,8 @@ public static class HillClimbVehicleTestScene
         GameObject cameraObject = new GameObject("Vehicle_Test_Camera");
         Camera camera = cameraObject.AddComponent<Camera>();
         cameraObject.tag = "MainCamera";
-        camera.fieldOfView = 62f;
+        camera.fieldOfView = 58f;
+        camera.aspect = 16f / 9f;
         cameraObject.transform.position = new Vector3(5.5f, 4.2f, -7.5f);
         cameraObject.transform.LookAt(root.transform.position + new Vector3(0f, 0.2f, 2f));
         VehicleTestCameraFollow follow = cameraObject.AddComponent<VehicleTestCameraFollow>();
@@ -117,6 +123,7 @@ public static class HillClimbVehicleTestScene
         CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
         canvasObject.AddComponent<GraphicRaycaster>();
 
@@ -138,10 +145,10 @@ public static class HillClimbVehicleTestScene
         rect.anchorMax = anchor;
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = position;
-        rect.sizeDelta = new Vector2(150f, 125f);
+        rect.sizeDelta = new Vector2(164f, 132f);
 
         Image image = buttonObject.AddComponent<Image>();
-        image.color = new Color(0.04f, 0.10f, 0.16f, 0.78f);
+        image.color = new Color(0.035f, 0.075f, 0.12f, 0.86f);
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = image;
 
@@ -157,7 +164,7 @@ public static class HillClimbVehicleTestScene
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.white;
         text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        text.fontSize = 30;
+        text.fontSize = 32;
         text.fontStyle = FontStyle.Bold;
 
         VehicleTouchButton touch = buttonObject.AddComponent<VehicleTouchButton>();
