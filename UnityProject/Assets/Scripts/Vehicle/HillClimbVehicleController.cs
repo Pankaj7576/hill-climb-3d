@@ -205,7 +205,29 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         keyboardBrake = false;
         body.position = spawnPosition + Vector3.up * 0.5f;
         body.rotation = spawnRotation;
-        if (frontLeft != null) frontLeft.steerAngle = 0f;
-        if (frontRight != null) frontRight.steerAngle = 0f;
+        if (frontLeft != null)
+        {
+            frontLeft.steerAngle = 0f;
+            frontLeft.motorTorque = 0f;
+            frontLeft.brakeTorque = 0f;
+        }
+        if (frontRight != null)
+        {
+            frontRight.steerAngle = 0f;
+            frontRight.motorTorque = 0f;
+            frontRight.brakeTorque = 0f;
+        }
+        if (rearLeft != null)
+        {
+            rearLeft.motorTorque = 0f;
+            rearLeft.brakeTorque = 0f;
+        }
+        if (rearRight != null)
+        {
+            rearRight.motorTorque = 0f;
+            rearRight.brakeTorque = 0f;
+        }
+
+        body.WakeUp();
     }
 }
