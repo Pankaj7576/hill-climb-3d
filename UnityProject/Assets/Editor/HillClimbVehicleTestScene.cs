@@ -2,6 +2,8 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Creates a repeatable, primitive-only test scene for Vehicle Physics Milestone 01.
@@ -66,6 +68,7 @@ public static class HillClimbVehicleTestScene
         cameraObject.transform.LookAt(root.transform.position + new Vector3(0f, 0.2f, 2f));
         VehicleTestCameraFollow follow = cameraObject.AddComponent<VehicleTestCameraFollow>();
         follow.SetTarget(root.transform);
+        CreateMobileControls(controller);
 
         GameObject lightObject = new GameObject("Vehicle_Test_Directional_Light");
         Light sun = lightObject.AddComponent<Light>();
@@ -76,6 +79,68 @@ public static class HillClimbVehicleTestScene
         Selection.activeGameObject = root;
         EditorSceneManager.MarkSceneDirty(root.scene);
         Debug.Log("HC3D test rig created. Press Play; use W/S or Up/Down and Space to brake. Drive toward the gentle ramp.");
+    }
+
+
+    private static void CreateMobileControls(HillClimbVehicleController controller)
+    {
+        if (Object.FindObjectOfType<EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<EventSystem>();
+            eventSystem.AddComponent<StandaloneInputModule>();
+        }
+
+        GameObject canvasObject = new GameObject("Mobile_Vehicle_Controls");
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        CreateTouchButton(canvas.transform, "LEFT", new Vector2(0f, 0f), new Vector2(130f, 125f), controller, VehicleTouchButton.ControlType.SteerLeft);
+        CreateTouchButton(canvas.transform, "RIGHT", new Vector2(0f, 0f), new Vector2(300f, 125f), controller, VehicleTouchButton.ControlType.SteerRight);
+        CreateTouchButton(canvas.transform, "BRAKE", new Vector2(1f, 0f), new Vector2(-300f, 125f), controller, VehicleTouchButton.ControlType.Brake);
+        CreateTouchButton(canvas.transform, "GAS", new Vector2(1f, 0f), new Vector2(-125f, 125f), controller, VehicleTouchButton.ControlType.Accelerator);
+        CreateTouchButton(canvas.transform, "RESET", new Vector2(1f, 1f), new Vector2(-105f, -75f), controller, VehicleTouchButton.ControlType.Reset);
+    }
+
+    private static void CreateTouchButton(Transform parent, string label, Vector2 anchor, Vector2 position,
+        HillClimbVehicleController controller, VehicleTouchButton.ControlType control)
+    {
+        GameObject buttonObject = new GameObject(label + "_Button");
+        buttonObject.transform.SetParent(parent, false);
+        RectTransform rect = buttonObject.AddComponent<RectTransform>();
+        rect.anchorMin = anchor;
+        rect.anchorMax = anchor;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = new Vector2(150f, 125f);
+
+        Image image = buttonObject.AddComponent<Image>();
+        image.color = new Color(0.04f, 0.10f, 0.16f, 0.78f);
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = image;
+
+        GameObject labelObject = new GameObject("Label");
+        labelObject.transform.SetParent(buttonObject.transform, false);
+        RectTransform labelRect = labelObject.AddComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+        Text text = labelObject.AddComponent<Text>();
+        text.text = label;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color = Color.white;
+        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        text.fontSize = 30;
+        text.fontStyle = FontStyle.Bold;
+
+        VehicleTouchButton touch = buttonObject.AddComponent<VehicleTouchButton>();
+        touch.Configure(controller, control);
     }
 
     private static WheelCollider CreateWheel(Transform parent, string objectName, float x, float y, float z, Material tireMaterial, out Transform visual)
