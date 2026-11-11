@@ -30,11 +30,11 @@ public sealed class VehicleTouchButton : MonoBehaviour, IPointerDownHandler, IPo
 
         switch (control)
         {
-            case ControlType.Accelerator: vehicle.SetThrottle(1f); break;
-            case ControlType.Reverse: vehicle.SetThrottle(-1f); break;
+            case ControlType.Accelerator: vehicle.SetAccelerator(true); break;
+            case ControlType.Reverse: vehicle.SetReverse(true); break;
             case ControlType.Brake: vehicle.SetBrake(true); break;
-            case ControlType.SteerLeft: vehicle.SetSteering(-1f); break;
-            case ControlType.SteerRight: vehicle.SetSteering(1f); break;
+            case ControlType.SteerLeft: vehicle.SetSteerLeft(true); break;
+            case ControlType.SteerRight: vehicle.SetSteerRight(true); break;
         }
     }
 
@@ -49,11 +49,11 @@ public sealed class VehicleTouchButton : MonoBehaviour, IPointerDownHandler, IPo
 
         switch (control)
         {
-            case ControlType.Accelerator:
-            case ControlType.Reverse: vehicle.SetThrottle(0f); break;
+            case ControlType.Accelerator: vehicle.SetAccelerator(false); break;
+            case ControlType.Reverse: vehicle.SetReverse(false); break;
             case ControlType.Brake: vehicle.SetBrake(false); break;
-            case ControlType.SteerLeft:
-            case ControlType.SteerRight: vehicle.SetSteering(0f); break;
+            case ControlType.SteerLeft: vehicle.SetSteerLeft(false); break;
+            case ControlType.SteerRight: vehicle.SetSteerRight(false); break;
         }
     }
 }
