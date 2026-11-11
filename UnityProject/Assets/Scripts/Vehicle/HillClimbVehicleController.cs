@@ -40,6 +40,10 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     private Rigidbody body;
     private float keyboardThrottle;
     private float mobileThrottle;
+    private bool mobileAcceleratorHeld;
+    private bool mobileReverseHeld;
+    private bool mobileSteerLeftHeld;
+    private bool mobileSteerRightHeld;
     private float currentThrottle;
     private float keyboardSteering;
     private float mobileSteering;
@@ -54,6 +58,11 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     {
         mobileThrottle = Mathf.Clamp(value, -1f, 1f);
     }
+
+    public void SetAccelerator(bool pressed) => mobileAcceleratorHeld = pressed;
+    public void SetReverse(bool pressed) => mobileReverseHeld = pressed;
+    public void SetSteerLeft(bool pressed) => mobileSteerLeftHeld = pressed;
+    public void SetSteerRight(bool pressed) => mobileSteerRightHeld = pressed;
 
     /// <summary>Call from mobile steering buttons or slider, using -1 to 1.</summary>
     public void SetSteering(float value)
@@ -96,9 +105,10 @@ public sealed class HillClimbVehicleController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float requestedThrottle = Mathf.Abs(mobileThrottle) > 0.001f
-            ? mobileThrottle
-            : keyboardThrottle;
+        float buttonThrottle = (mobileAcceleratorHeld ? 1f : 0f) - (mobileReverseHeld ? 1f : 0f);
+        float requestedThrottle = Mathf.Abs(buttonThrottle) > 0.001f
+            ? buttonThrottle
+            : (Mathf.Abs(mobileThrottle) > 0.001f ? mobileThrottle : keyboardThrottle);
 
         currentThrottle = Mathf.MoveTowards(
             currentThrottle,
@@ -109,7 +119,10 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         ApplyDrive(rearLeft);
         ApplyDrive(rearRight);
 
-        float requestedSteering = Mathf.Abs(mobileSteering) > 0.001f ? mobileSteering : keyboardSteering;
+        float buttonSteering = (mobileSteerRightHeld ? 1f : 0f) - (mobileSteerLeftHeld ? 1f : 0f);
+        float requestedSteering = Mathf.Abs(buttonSteering) > 0.001f
+            ? buttonSteering
+            : (Mathf.Abs(mobileSteering) > 0.001f ? mobileSteering : keyboardSteering);
         currentSteering = Mathf.MoveTowards(currentSteering, requestedSteering, steeringResponse * Time.fixedDeltaTime);
         float speedFactor = Mathf.Clamp01(body.velocity.magnitude / 18f);
         float steerLimit = maximumSteerAngle * (1f - highSpeedSteeringReduction * speedFactor);
@@ -178,7 +191,8 @@ public sealed class HillClimbVehicleController : MonoBehaviour
             return;
 
         wheel.GetWorldPose(out Vector3 position, out Quaternion rotation);
-        visual.SetPositionAndRotation(position, rotation);
+        // Unity's primitive Cylinder has its axle along local Y; rotate it onto the WheelCollider axle.
+        visual.SetPositionAndRotation(position, rotation * Quaternion.Euler(0f, 0f, 90f));
     }
 
     private void ValidateWheelSetup()
@@ -197,6 +211,10 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         body.angularVelocity = Vector3.zero;
         currentThrottle = 0f;
         mobileThrottle = 0f;
+        mobileAcceleratorHeld = false;
+        mobileReverseHeld = false;
+        mobileSteerLeftHeld = false;
+        mobileSteerRightHeld = false;
         mobileSteering = 0f;
         currentSteering = 0f;
         mobileBrake = false;
