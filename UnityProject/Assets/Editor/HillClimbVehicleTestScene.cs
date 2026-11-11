@@ -16,7 +16,7 @@ public static class HillClimbVehicleTestScene
             return;
 
         var root = new GameObject("HC3D_Vehicle_Test_Rig");
-        root.transform.position = new Vector3(0f, 1.05f, 0f);
+        root.transform.position = new Vector3(0f, 0.58f, 0f);
 
         var body = root.AddComponent<Rigidbody>();
         body.mass = 900f;
