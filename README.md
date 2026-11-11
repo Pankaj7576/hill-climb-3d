@@ -8,6 +8,7 @@ The active focus is driving, front steering, suspension stability and a repeatab
 - [Vehicle physics setup and test guide](UnityProject/VEHICLE-MILESTONE-01.md)
 - [Unity vehicle controller](UnityProject/Assets/Scripts/Vehicle/HillClimbVehicleController.cs)
 - [Smooth test chase camera](UnityProject/Assets/Scripts/Vehicle/VehicleTestCameraFollow.cs)
+- [Mobile touch input adapter](UnityProject/Assets/Scripts/Vehicle/VehicleTouchButton.cs)
 - [One-click Unity test-scene builder](UnityProject/Assets/Editor/HillClimbVehicleTestScene.cs)
 
 ### Create the Unity test scene
