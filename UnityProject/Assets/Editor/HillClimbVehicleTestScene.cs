@@ -227,9 +227,9 @@ public static class HillClimbVehicleTestScene
                 new Vector3(0.22f, 0.65f, 0.22f), trunkMat);
             trunk.transform.rotation = Quaternion.Euler(0f, i * 37f, 0f);
 
-            CreateVisualPrimitive(PrimitiveType.Cone, "Pine_Canopy_Lower_" + i, p + Vector3.up * 1.55f,
+            CreateVisualPrimitive(PrimitiveType.Sphere, "Pine_Canopy_Lower_" + i, p + Vector3.up * 1.55f,
                 new Vector3(1.55f, 1.65f, 1.55f), leafMat);
-            CreateVisualPrimitive(PrimitiveType.Cone, "Pine_Canopy_Upper_" + i, p + Vector3.up * 2.25f,
+            CreateVisualPrimitive(PrimitiveType.Sphere, "Pine_Canopy_Upper_" + i, p + Vector3.up * 2.25f,
                 new Vector3(1.15f, 1.35f, 1.15f), leafMat);
         }
 
