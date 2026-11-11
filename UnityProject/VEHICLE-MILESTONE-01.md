@@ -14,7 +14,7 @@ This milestone stays focused on one thing: **the vehicle's driving, steering and
 3. Wait for Unity to compile. If Unity reports an error, fix it before testing.
 4. In Unity's top menu, choose **Hill Climb 3D → Vehicle → Build Physics Test Scene**.
 5. Save the generated scene as `VehiclePhysicsTest`.
-6. Press Play. Use **W / Up Arrow** to accelerate, **S / Down Arrow** to reverse, **A / D** or **Left / Right Arrow** to steer, and **Space** to brake. Touch input is already included in the generated test scene through the `VehicleTouchButton` component.
+6. The scene builder sets Android orientation to **Landscape Left** and uses a **1920 × 1080 (16:9) UI reference layout**. Press Play. Use **W / Up Arrow** to accelerate, **S / Down Arrow** to reverse, **A / D** or **Left / Right Arrow** to steer, and **Space** to brake. Touch input is included in the generated scene.
 7. Test on the flat track first, then approach the gentle ramp at moderate speed. The camera follows the vehicle.
 
 ## Mobile input hooks
@@ -23,13 +23,15 @@ This milestone stays focused on one thing: **the vehicle's driving, steering and
 - `SetSteering(-1)` for left, `SetSteering(1)` for right, and `SetSteering(0)` on release.
 - `SetBrake(true)` while brake is held, then `SetBrake(false)` on release.
 
-To wire a mobile UI Button, add `VehicleTouchButton` to its GameObject, assign the vehicle controller, and choose its Control Type in the Inspector. The button needs a raycastable Image and the scene needs an EventSystem with an input module. The generated test scene now includes on-screen LEFT, RIGHT, REVERSE, BRAKE, GAS and RESET buttons. The touch adapter releases continuous input when the finger lifts, leaves a button or the component is disabled. The generated UI uses Unity's legacy EventSystem input module; if the project is configured for the new Input System only, switch Active Input Handling to Both or configure an Input System UI module.
+To wire a mobile UI Button, add `VehicleTouchButton` to its GameObject, assign the vehicle controller, and choose its Control Type in the Inspector. The button needs a raycastable Image and the scene needs an EventSystem with an input module. The generated test scene now includes on-screen LEFT, RIGHT, REVERSE, BRAKE, GAS and RESET buttons. Accelerator, reverse and each steering direction now track their own pressed state, so releasing one finger does not cancel a different held control. The touch adapter releases continuous input when the finger lifts, leaves a button or the component is disabled. The generated UI uses Unity's legacy EventSystem input module; if the project is configured for the new Input System only, switch Active Input Handling to Both or configure an Input System UI module.
 
 ## Visual improvements in the test scene
-- Asphalt road surface with contrasting edge lines over the grassy test ground.
+- Asphalt road surface raised clearly above the ground, with outer edge lines and dashed center markings.
+- The wheel cylinder visual is aligned to the WheelCollider axle before its physics pose is applied, avoiding the sideways axle/incorrect-looking spin issue.
 - Low-poly roadside trees and rocks placed outside the main wheel path.
 - Softer directional shadows, warmer sunlight, ambient sky/ground colors and light distance fog.
 - These are development-scene visuals; the final Jeep model, terrain art and mobile graphics optimization are still future work.
+- The browser prototype is a separate lightweight preview. It now has a visible road ribbon, forward/reverse wheel spin, brake-to-stop behavior and a portrait rotate prompt.
 
 ## What to inspect
 - Smooth acceleration and reverse, without sudden jumps.
