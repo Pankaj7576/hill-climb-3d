@@ -23,7 +23,7 @@ This milestone stays focused on one thing: **the vehicle's driving, steering and
 - `SetSteering(-1)` for left, `SetSteering(1)` for right, and `SetSteering(0)` on release.
 - `SetBrake(true)` while brake is held, then `SetBrake(false)` on release.
 
-To wire a mobile UI Button, add `VehicleTouchButton` to its GameObject, assign the vehicle controller, and choose its Control Type in the Inspector. The button needs a raycastable Image and the scene needs an EventSystem with an input module. The generated test scene now includes on-screen LEFT, RIGHT, BRAKE, GAS and RESET buttons. The touch adapter releases continuous input when the finger lifts, leaves a button or the component is disabled. The generated UI uses Unity's legacy EventSystem input module; if the project is configured for the new Input System only, switch Active Input Handling to Both or configure an Input System UI module.
+To wire a mobile UI Button, add `VehicleTouchButton` to its GameObject, assign the vehicle controller, and choose its Control Type in the Inspector. The button needs a raycastable Image and the scene needs an EventSystem with an input module. The generated test scene now includes on-screen LEFT, RIGHT, REVERSE, BRAKE, GAS and RESET buttons. The touch adapter releases continuous input when the finger lifts, leaves a button or the component is disabled. The generated UI uses Unity's legacy EventSystem input module; if the project is configured for the new Input System only, switch Active Input Handling to Both or configure an Input System UI module.
 
 ## What to inspect
 - Smooth acceleration and reverse, without sudden jumps.
