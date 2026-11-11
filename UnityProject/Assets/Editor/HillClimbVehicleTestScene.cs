@@ -102,6 +102,7 @@ public static class HillClimbVehicleTestScene
 
         CreateTouchButton(canvas.transform, "LEFT", new Vector2(0f, 0f), new Vector2(130f, 125f), controller, VehicleTouchButton.ControlType.SteerLeft);
         CreateTouchButton(canvas.transform, "RIGHT", new Vector2(0f, 0f), new Vector2(300f, 125f), controller, VehicleTouchButton.ControlType.SteerRight);
+        CreateTouchButton(canvas.transform, "REVERSE", new Vector2(1f, 0f), new Vector2(-475f, 125f), controller, VehicleTouchButton.ControlType.Reverse);
         CreateTouchButton(canvas.transform, "BRAKE", new Vector2(1f, 0f), new Vector2(-300f, 125f), controller, VehicleTouchButton.ControlType.Brake);
         CreateTouchButton(canvas.transform, "GAS", new Vector2(1f, 0f), new Vector2(-125f, 125f), controller, VehicleTouchButton.ControlType.Accelerator);
         CreateTouchButton(canvas.transform, "RESET", new Vector2(1f, 1f), new Vector2(-105f, -75f), controller, VehicleTouchButton.ControlType.Reset);
