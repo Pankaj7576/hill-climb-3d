@@ -3,7 +3,7 @@
 A mobile-focused Hill Climb game project. Development is being done in small, testable milestones: finish and tune one mechanic before starting the next.
 
 ## Current milestone: vehicle physics
-The active focus is driving, front steering, suspension stability, a repeatable Unity test scene, mobile touch HUD and a first low-poly roadside environment with an asphalt track.
+The active focus is driving, front steering, suspension stability, a visible asphalt test road, independent mobile touch controls and a Landscape 16:9 Unity test layout.
 
 - [Vehicle physics setup and test guide](UnityProject/VEHICLE-MILESTONE-01.md)
 - [Unity vehicle controller](UnityProject/Assets/Scripts/Vehicle/HillClimbVehicleController.cs)
@@ -18,7 +18,7 @@ Copy the `UnityProject/Assets` folder into a Unity 2022 LTS (or newer) 3D projec
 The root `index.html` is an earlier Three.js browser prototype, separate from the Unity project:
 https://pankaj7576.github.io/hill-climb-3d/
 
-The browser prototype is not the final Unity game and is not an Android APK.
+The browser prototype now includes a road ribbon, forward/reverse driving, brake-to-stop, touch controls and a rotate-to-landscape prompt. It is still a lightweight preview, not the final Unity game or an Android APK.
 
 ## Important build note
 The Unity source files are stored here, but a Unity Editor or compatible cloud build is required to compile, run the test scene and build an Android APK. The current Unity scripts have not yet been compiled or play-tested in Unity, so this milestone is still awaiting in-Editor verification.
