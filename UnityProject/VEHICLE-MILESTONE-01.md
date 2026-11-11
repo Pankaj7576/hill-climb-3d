@@ -6,7 +6,7 @@ This milestone stays focused on one thing: **the vehicle's driving, steering and
 - `Assets/Scripts/Vehicle/HillClimbVehicleController.cs` — rear-wheel drive, braking, smoothed throttle, front-wheel steering, wheel visual sync, anti-roll stability and mobile input hooks.
 - `Assets/Scripts/Vehicle/VehicleTestCameraFollow.cs` — smooth chase camera for the test scene.
 - `Assets/Scripts/Vehicle/VehicleTouchButton.cs` — pointer down/up adapter for accelerator, reverse, brake, steering and reset UI buttons.
-- `Assets/Editor/HillClimbVehicleTestScene.cs` — creates a repeatable primitive test rig with four configured WheelColliders, flat track, gentle ramp, follow camera and light.
+- `Assets/Editor/HillClimbVehicleTestScene.cs` — creates a repeatable test rig with four configured WheelColliders, asphalt track and edge markings, low-poly roadside trees and rocks, gentle ramp, soft directional shadows, ambient lighting and distance fog.
 
 ## Build the test rig in Unity
 1. Open a Unity 3D project (Unity 2022 LTS or newer).
@@ -24,6 +24,12 @@ This milestone stays focused on one thing: **the vehicle's driving, steering and
 - `SetBrake(true)` while brake is held, then `SetBrake(false)` on release.
 
 To wire a mobile UI Button, add `VehicleTouchButton` to its GameObject, assign the vehicle controller, and choose its Control Type in the Inspector. The button needs a raycastable Image and the scene needs an EventSystem with an input module. The generated test scene now includes on-screen LEFT, RIGHT, REVERSE, BRAKE, GAS and RESET buttons. The touch adapter releases continuous input when the finger lifts, leaves a button or the component is disabled. The generated UI uses Unity's legacy EventSystem input module; if the project is configured for the new Input System only, switch Active Input Handling to Both or configure an Input System UI module.
+
+## Visual improvements in the test scene
+- Asphalt road surface with contrasting edge lines over the grassy test ground.
+- Low-poly roadside trees and rocks placed outside the main wheel path.
+- Softer directional shadows, warmer sunlight, ambient sky/ground colors and light distance fog.
+- These are development-scene visuals; the final Jeep model, terrain art and mobile graphics optimization are still future work.
 
 ## What to inspect
 - Smooth acceleration and reverse, without sudden jumps.
