@@ -27,6 +27,11 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float throttleResponse = 4f;
     [SerializeField] private bool keyboardInputEnabled = true;
 
+    [Header("Steering")]
+    [SerializeField, Range(5f, 45f)] private float maximumSteerAngle = 28f;
+    [SerializeField, Min(0f)] private float steeringResponse = 5f;
+    [SerializeField, Min(0f)] private float highSpeedSteeringReduction = 0.45f;
+
     [Header("Stability")]
     [SerializeField] private Vector3 centerOfMassOffset = new Vector3(0f, -0.45f, 0f);
     [SerializeField, Min(0f)] private float frontAntiRoll = 4500f;
@@ -36,6 +41,9 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     private float keyboardThrottle;
     private float mobileThrottle;
     private float currentThrottle;
+    private float keyboardSteering;
+    private float mobileSteering;
+    private float currentSteering;
     private bool keyboardBrake;
     private bool mobileBrake;
     private Vector3 spawnPosition;
@@ -45,6 +53,12 @@ public sealed class HillClimbVehicleController : MonoBehaviour
     public void SetThrottle(float value)
     {
         mobileThrottle = Mathf.Clamp(value, -1f, 1f);
+    }
+
+    /// <summary>Call from mobile steering buttons or slider, using -1 to 1.</summary>
+    public void SetSteering(float value)
+    {
+        mobileSteering = Mathf.Clamp(value, -1f, 1f);
     }
 
     /// <summary>Call from a mobile UI brake button.</summary>
@@ -72,6 +86,7 @@ public sealed class HillClimbVehicleController : MonoBehaviour
             ? Input.GetAxisRaw("Vertical")
             : 0f;
 
+        keyboardSteering = keyboardInputEnabled ? Input.GetAxisRaw("Horizontal") : 0f;
         keyboardBrake = keyboardInputEnabled && Input.GetKey(KeyCode.Space);
         UpdateWheelVisual(frontLeft, frontLeftVisual);
         UpdateWheelVisual(frontRight, frontRightVisual);
@@ -93,6 +108,14 @@ public sealed class HillClimbVehicleController : MonoBehaviour
 
         ApplyDrive(rearLeft);
         ApplyDrive(rearRight);
+
+        float requestedSteering = Mathf.Abs(mobileSteering) > 0.001f ? mobileSteering : keyboardSteering;
+        currentSteering = Mathf.MoveTowards(currentSteering, requestedSteering, steeringResponse * Time.fixedDeltaTime);
+        float speedFactor = Mathf.Clamp01(body.velocity.magnitude / 18f);
+        float steerLimit = maximumSteerAngle * (1f - highSpeedSteeringReduction * speedFactor);
+        float steerAngle = currentSteering * steerLimit;
+        if (frontLeft != null) frontLeft.steerAngle = steerAngle;
+        if (frontRight != null) frontRight.steerAngle = steerAngle;
 
         bool braking = mobileBrake || keyboardBrake;
         float appliedBrake = braking ? brakeTorque : 0f;
@@ -174,8 +197,15 @@ public sealed class HillClimbVehicleController : MonoBehaviour
         body.angularVelocity = Vector3.zero;
         currentThrottle = 0f;
         mobileThrottle = 0f;
+        mobileSteering = 0f;
+        currentSteering = 0f;
         mobileBrake = false;
+        keyboardThrottle = 0f;
+        keyboardSteering = 0f;
+        keyboardBrake = false;
         body.position = spawnPosition + Vector3.up * 0.5f;
         body.rotation = spawnRotation;
+        if (frontLeft != null) frontLeft.steerAngle = 0f;
+        if (frontRight != null) frontRight.steerAngle = 0f;
     }
 }
